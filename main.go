@@ -54,7 +54,7 @@ func getHomePage(c *gin.Context) {
 
 func getAddress() string {
 	p := getPort()
-	if a, ok := os.LookupEnv(""); ok {
+	if a, ok := os.LookupEnv("ADDR"); ok {
 		return a + p
 	}
 
