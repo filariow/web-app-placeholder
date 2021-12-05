@@ -38,7 +38,7 @@ func setupHTTPServer() error {
 		c.FileFromFS("public/favicon.svg", http.FS(assets.Public))
 	})
 
-	r.Run(getPort())
+	r.Run(getAddress())
 
 	return nil
 }
@@ -50,6 +50,15 @@ func getHomePage(c *gin.Context) {
 		"title": "I'm a Placeholder Web App",
 		"host":  i,
 	})
+}
+
+func getAddress() string {
+	p := getPort()
+	if a, ok := os.LookupEnv(""); ok {
+		return a + p
+	}
+
+	return p
 }
 
 func getPort() string {
