@@ -1,0 +1,38 @@
+name: Docker Image CI
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+env:
+  image: ghcr.io/filariow/web-app-placeholder
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Docker login on Github
+      run: |
+        echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u filariow --password-stdin
+
+    - name: "Calculate Version"
+      id: calculate-version
+      run: |
+        version=`echo "${{ github.ref }}" | cut -f 3 -d '/' | sed 's/^v//g' - | sed 's/\+/-/g'`
+        echo "::set-output name=version::${version}"
+
+    - name: Build the Docker image
+      run: |
+        docker buildx build \
+           --file deploy/Dockerfile \
+           --tag ${{env.image}}:${{steps.calculate-version.outputs.version}} \
+          .
+
+    - name: Push the Docker images
+      run: |
+        docker push ${{env.image}}:${{steps.calculate-version.outputs.version}}
+
