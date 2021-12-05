@@ -33,12 +33,14 @@ func setupHTTPServer() error {
 	}
 	r.SetHTMLTemplate(t)
 
-	r.GET("/", getHomePage)
-	r.GET("/favicon.svg", func(c *gin.Context) {
+	a := getAddress()
+	rg := r.Group(a)
+	rg.GET("/", getHomePage)
+	rg.GET("/favicon.svg", func(c *gin.Context) {
 		c.FileFromFS("public/favicon.svg", http.FS(assets.Public))
 	})
 
-	r.Run(getAddress())
+	r.Run(getPort())
 
 	return nil
 }
@@ -53,12 +55,11 @@ func getHomePage(c *gin.Context) {
 }
 
 func getAddress() string {
-	p := getPort()
 	if a, ok := os.LookupEnv("URL_PATH"); ok {
-		return p + a
+		return a
 	}
 
-	return p
+	return ""
 }
 
 func getPort() string {
